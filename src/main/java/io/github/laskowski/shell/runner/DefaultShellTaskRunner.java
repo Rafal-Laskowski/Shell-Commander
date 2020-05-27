@@ -25,12 +25,6 @@ public class DefaultShellTaskRunner implements ShellTaskRunner<Process> {
 
     @Override
     public void run(ShellTask<Process> shellTask, OutputListener<Process> outputListener, ServiceReadyStrategy serviceReadyStrategy) {
-        System.out.println("DefaultShellTaskRunner: run");
-        Thread processThread = new Thread(shellTask::start);
-        processThread.setName(String.format("%s Shell Task Thread", shellTask.getName()));
-        processThread.start();
-        System.out.println("DefaultShellTaskRunner: process thread started");
-
         Publisher<Process> publisher = outputListener.getPublisher();
         StringSubscriber subscriber = outputListener.getSubscriber();
         Thread outputListenerThread = new Thread(() -> {
@@ -40,10 +34,10 @@ public class DefaultShellTaskRunner implements ShellTaskRunner<Process> {
             publisher.startPublishing(process);
         });
 
-        outputListenerThread.setName(String.format("%s Output Listener Thread", shellTask.getName()));
         outputListenerThread.start();
 
-        System.out.println("DefaultShellTaskRunner: output listener thread started");
+        Thread processThread = new Thread(shellTask::start);
+        processThread.start();
 
         new Wait()
                 .withTimeout(serviceReadyStrategy.getTimeout())

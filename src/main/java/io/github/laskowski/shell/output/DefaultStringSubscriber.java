@@ -14,7 +14,6 @@ public class DefaultStringSubscriber implements StringSubscriber {
 
     public DefaultStringSubscriber(@Nullable ErrorDetectionStrategy errorDetectionStrategy) {
         this.errorDetectionStrategy = errorDetectionStrategy;
-        System.out.println("DefaultStringSubscriber: creating instance");
     }
 
     @Override

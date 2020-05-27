@@ -7,22 +7,21 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.concurrent.Flow;
-import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.TimeUnit;
 
-public class DefaultPublisher extends SubmissionPublisher<String> implements Publisher<Process> {
-    public static final String LAST_MESSAGE = "PROCESS FINISHED";
-    protected MessageExclusionStrategy messageExclusionStrategy;
+public class ExtendedDefaultPublisher extends DefaultPublisher implements Publisher<Process> {
 
-    public DefaultPublisher(@Nullable MessageExclusionStrategy messageExclusionStrategy) {
-        this.messageExclusionStrategy = messageExclusionStrategy;
+    public ExtendedDefaultPublisher(@Nullable MessageExclusionStrategy messageExclusionStrategy) {
+        super(messageExclusionStrategy);
     }
 
     public void startPublishing(Process process) {
         BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
         String line = "";
 
         boolean isOutReady;
+        boolean isErrorReady;
         boolean isProcessAlive;
 
         while (!Thread.currentThread().isInterrupted()) {
@@ -31,6 +30,12 @@ public class DefaultPublisher extends SubmissionPublisher<String> implements Pub
                     isOutReady = stdInput.ready();
                     if (isOutReady) {
                         line = stdInput.readLine();
+                        publishMessage(line, messageExclusionStrategy);
+                    }
+
+                    isErrorReady = stdError.ready();
+                    if (isErrorReady) {
+                        line = stdError.readLine();
                         publishMessage(line, messageExclusionStrategy);
                     }
 

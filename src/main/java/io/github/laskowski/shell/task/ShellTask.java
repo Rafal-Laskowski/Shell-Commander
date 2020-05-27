@@ -11,6 +11,4 @@ public interface ShellTask<T> {
     T getProcess();
 
     Script getScript();
-
-    String getName();
 }

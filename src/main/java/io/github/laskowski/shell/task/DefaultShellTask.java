@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public abstract class DefaultShellTask implements ShellTask<Process> {
     private static final ShellArguments SHELL_ARGUMENTS = DefaultScriptInfoProvider.getInstance().getShellArguments();
-    private Process process;
+    private volatile Process process;
 
     @Override
     public void start() {
@@ -31,7 +31,7 @@ public abstract class DefaultShellTask implements ShellTask<Process> {
 
     @Override
     public Process getProcess() {
-        new Wait().until(() -> process != null);
+        new Wait().withMessage("Failed to wait until Process is not null").until(() -> process != null);
 
         return process;
     }
