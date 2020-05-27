@@ -6,4 +6,6 @@ public interface ShellArguments {
     String getExtension();
 
     String getExecutionArguments();
+
+    String getVariableCommand();
 }

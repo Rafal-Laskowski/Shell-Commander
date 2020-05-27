@@ -1,4 +1,4 @@
-package io.github.laskowski.shell;
+package io.github.laskowski.shell.script;
 
 import java.io.File;
 
