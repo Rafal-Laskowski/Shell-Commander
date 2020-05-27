@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.Duration;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.TimeUnit;
@@ -13,34 +14,38 @@ import java.util.concurrent.TimeUnit;
 public class DefaultPublisher extends SubmissionPublisher<String> implements Publisher<Process> {
     public static final String LAST_MESSAGE = "PROCESS FINISHED";
     protected MessageExclusionStrategy messageExclusionStrategy;
+    protected volatile boolean shouldPublish = true;
 
     public DefaultPublisher(@Nullable MessageExclusionStrategy messageExclusionStrategy) {
         this.messageExclusionStrategy = messageExclusionStrategy;
     }
 
     public void startPublishing(Process process) {
+        Thread lolThread = new Thread(() -> {
+            while(process.isAlive()) {
+                Sleeper.sleep(Duration.ofMillis(500));
+            }
+
+            Sleeper.sleep(Duration.ofMillis(500));
+            stopPublishing();
+        });
+
+
         BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        String line = "";
+        String line;
 
         boolean isOutReady;
-        boolean isProcessAlive;
 
-        while (!Thread.currentThread().isInterrupted()) {
+        lolThread.start();
+        while (shouldPublish) {
             try {
-                do {
-                    isOutReady = stdInput.ready();
-                    if (isOutReady) {
-                        line = stdInput.readLine();
-                        publishMessage(line, messageExclusionStrategy);
-                    }
+                isOutReady = stdInput.ready();
+                if (isOutReady) {
+                    line = stdInput.readLine();
 
-                    isProcessAlive = process.isAlive();
-                    if (!isProcessAlive) {
-                        line = null;
-                        process.waitFor(1000, TimeUnit.MILLISECONDS);
-                    }
+                    publishMessage(line, messageExclusionStrategy);
+                }
 
-                } while (line != null && !Thread.currentThread().isInterrupted());
                 process.waitFor(1, TimeUnit.MILLISECONDS);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -54,6 +59,11 @@ public class DefaultPublisher extends SubmissionPublisher<String> implements Pub
         }
 
         publishMessage(LAST_MESSAGE, null);
+    }
+
+    @Override
+    public void stopPublishing() {
+        shouldPublish = false;
     }
 
     @Override
@@ -72,5 +82,15 @@ public class DefaultPublisher extends SubmissionPublisher<String> implements Pub
         if (subscriber != null) {
             this.subscribe(subscriber);
         } else throw new IllegalArgumentException("You need to provide subscriber to Publisher!");
+    }
+
+    private static class Sleeper {
+
+        static void sleep(Duration duration) {
+            try {
+                Thread.sleep(duration.toMillis());
+            } catch (InterruptedException ignore) {
+            }
+        }
     }
 }

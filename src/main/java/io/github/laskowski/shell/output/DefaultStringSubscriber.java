@@ -5,7 +5,9 @@ import io.github.laskowski.shell.output.messages.ErrorDetectionStrategy;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Flow;
+import java.util.stream.Collectors;
 
 public class DefaultStringSubscriber implements StringSubscriber {
     protected Flow.Subscription subscription;
@@ -44,6 +46,6 @@ public class DefaultStringSubscriber implements StringSubscriber {
 
     @Override
     public List<String> getLines() {
-        return lines;
+        return new ArrayList<>(lines).stream().filter(Objects::nonNull).collect(Collectors.toList());
     }
 }
