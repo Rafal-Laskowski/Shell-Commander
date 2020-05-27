@@ -8,8 +8,6 @@ public interface Publisher<T> {
 
     void startPublishing(T process);
 
-    void stopPublishing();
-
     void publishMessage(String message, MessageExclusionStrategy messageExclusionStrategy);
 
     void registerSubscriber(Flow.Subscriber<String> subscriber);

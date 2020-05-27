@@ -1,5 +1,6 @@
 package io.github.laskowski.shell.script;
 
+import java.io.File;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -8,7 +9,11 @@ public class DefaultScriptWriter extends TXTWriter implements ScriptWriter {
     private static final DefaultScriptInfoProvider SCRIPT_INFO_PROVIDER = DefaultScriptInfoProvider.getInstance();
 
     public DefaultScriptWriter(String fileName) {
-        super(SCRIPT_INFO_PROVIDER.getScriptDirectory(), fileName.concat(SCRIPT_INFO_PROVIDER.getShellArguments().getExtension()));
+        this(SCRIPT_INFO_PROVIDER.getScriptDirectory(), fileName.concat(SCRIPT_INFO_PROVIDER.getShellArguments().getExtension()));
+    }
+
+    public DefaultScriptWriter(File directory, String fileName) {
+        super(directory, fileName);
     }
 
     public DefaultScriptWriter runCommands(Class<?> clazz) {

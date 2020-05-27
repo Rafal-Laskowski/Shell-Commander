@@ -21,7 +21,7 @@ public class DefaultPublisher extends SubmissionPublisher<String> implements Pub
     }
 
     public void startPublishing(Process process) {
-        Thread lolThread = new Thread(() -> {
+        Thread processDetectionThread = new Thread(() -> {
             while(process.isAlive()) {
                 Sleeper.sleep(Duration.ofMillis(500));
             }
@@ -36,7 +36,7 @@ public class DefaultPublisher extends SubmissionPublisher<String> implements Pub
 
         boolean isOutReady;
 
-        lolThread.start();
+        processDetectionThread.start();
         while (shouldPublish) {
             try {
                 isOutReady = stdInput.ready();
@@ -61,8 +61,7 @@ public class DefaultPublisher extends SubmissionPublisher<String> implements Pub
         publishMessage(LAST_MESSAGE, null);
     }
 
-    @Override
-    public void stopPublishing() {
+    protected void stopPublishing() {
         shouldPublish = false;
     }
 

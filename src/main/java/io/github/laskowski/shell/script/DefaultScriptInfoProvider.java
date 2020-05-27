@@ -24,7 +24,7 @@ public class DefaultScriptInfoProvider implements ScriptInfoProvider {
 
     @Override
     public OperatingSystemDiscoveryStrategy getOperatingSystemDiscoveryStrategy() {
-        return new DefaultOperatingSystemDiscoveryStrategy();
+        return DefaultOperatingSystemDiscoveryStrategy.getInstance();
     }
 
     public ShellArguments getShellArguments() {
