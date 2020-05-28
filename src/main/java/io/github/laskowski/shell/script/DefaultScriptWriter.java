@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+@SuppressWarnings("UnusedReturnValue")
 public class DefaultScriptWriter extends TXTWriter implements ScriptWriter {
     private static final DefaultScriptInfoProvider SCRIPT_INFO_PROVIDER = DefaultScriptInfoProvider.getInstance();
 

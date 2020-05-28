@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 public class DefaultPublisher extends SubmissionPublisher<String> implements Publisher<Process> {
     public static final String LAST_MESSAGE = "PROCESS FINISHED";
-    protected MessageExclusionStrategy messageExclusionStrategy;
+    private final MessageExclusionStrategy messageExclusionStrategy;
     protected volatile boolean shouldPublish = true;
 
     public DefaultPublisher(@Nullable MessageExclusionStrategy messageExclusionStrategy) {

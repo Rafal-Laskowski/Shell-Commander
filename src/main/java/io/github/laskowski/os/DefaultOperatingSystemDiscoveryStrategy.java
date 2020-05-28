@@ -2,7 +2,7 @@ package io.github.laskowski.os;
 
 public class DefaultOperatingSystemDiscoveryStrategy implements OperatingSystemDiscoveryStrategy {
     private static DefaultOperatingSystemDiscoveryStrategy instance;
-    private String os = System.getProperty("os.name").toLowerCase();
+    private static final String OPERATING_SYSTEM_NAME = System.getProperty("os.name").toLowerCase();
 
     public static DefaultOperatingSystemDiscoveryStrategy getInstance() {
         if (instance == null) {
@@ -16,14 +16,14 @@ public class DefaultOperatingSystemDiscoveryStrategy implements OperatingSystemD
 
     @Override
     public OperatingSystem getOS() {
-        if (os.contains("win")) {
+        if (OPERATING_SYSTEM_NAME.contains("win")) {
             return OperatingSystem.WINDOWS;
-        } else if (os.contains("mac")) {
+        } else if (OPERATING_SYSTEM_NAME.contains("mac")) {
             return OperatingSystem.MAC;
-        } else if (os.contains("nix") || os.contains("nux") || os.contains("aix")) {
+        } else if (OPERATING_SYSTEM_NAME.contains("nix") || OPERATING_SYSTEM_NAME.contains("nux") || OPERATING_SYSTEM_NAME.contains("aix")) {
             return OperatingSystem.UNIX;
         } else {
-            throw new IllegalArgumentException(String.format("Unrecognized Operating System: %s", os));
+            throw new IllegalArgumentException(String.format("Unrecognized Operating System: %s", OPERATING_SYSTEM_NAME));
         }
     }
 }
