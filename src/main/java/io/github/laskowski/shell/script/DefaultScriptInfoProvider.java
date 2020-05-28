@@ -33,7 +33,7 @@ public class DefaultScriptInfoProvider implements ScriptInfoProvider {
         switch (operatingSystem) {
             case WINDOWS: return new DefaultWindowsShellArguments();
             case MAC:
-            case LINUX: return new DefaultLinuxShellArguments();
+            case UNIX: return new DefaultLinuxShellArguments();
             default: throw new IllegalArgumentException("Cannot discover shell arguments for OS: " + operatingSystem);
         }
     }
