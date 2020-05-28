@@ -1,5 +1,7 @@
 package io.github.laskowski.shell.script;
 
+import io.github.laskowski.os.OperatingSystem;
+
 import java.io.File;
 import java.util.List;
 import java.util.Objects;
@@ -57,6 +59,20 @@ public class DefaultScriptWriter extends TXTWriter implements ScriptWriter {
     public DefaultScriptWriter command(String string, Object... args) {
         super.write(String.format(Objects.requireNonNull(string), args));
         super.newLine();
+        return this;
+    }
+
+    public DefaultScriptWriter osBasedCommand(OSBasedCommand osBasedCommand) {
+        OperatingSystem operatingSystem = SCRIPT_INFO_PROVIDER.getOperatingSystemDiscoveryStrategy().getOS();
+        switch (operatingSystem) {
+            case WINDOWS: command(osBasedCommand.getWindowsCommand());
+                break;
+            case MAC: command(osBasedCommand.getMacCommand());
+                break;
+            case UNIX: command(osBasedCommand.getUnixCommand());
+                break;
+        }
+
         return this;
     }
 

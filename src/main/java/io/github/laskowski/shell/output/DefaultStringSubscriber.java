@@ -1,5 +1,6 @@
 package io.github.laskowski.shell.output;
 
+import io.github.laskowski.shell.exceptions.ErrorDetectedException;
 import io.github.laskowski.shell.output.messages.ErrorDetectionStrategy;
 
 import javax.annotation.Nullable;
@@ -28,10 +29,6 @@ public class DefaultStringSubscriber implements StringSubscriber {
     public void onNext(String item) {
         System.out.println(item);
 
-        if (errorDetectionStrategy != null) {
-            errorDetectionStrategy.test(item);
-        }
-
         lines.add(item);
         this.subscription.request(100);
     }
@@ -45,7 +42,17 @@ public class DefaultStringSubscriber implements StringSubscriber {
     public void onComplete() {}
 
     @Override
-    public List<String> getLines() {
-        return new ArrayList<>(lines).stream().filter(Objects::nonNull).collect(Collectors.toList());
+    public List<String> getLines() throws ErrorDetectedException {
+        List<String> lineList = new ArrayList<>(lines).stream().filter(Objects::nonNull).collect(Collectors.toList());
+
+        if (errorDetectionStrategy != null) {
+            for (String line : lineList) {
+                if (errorDetectionStrategy.test(line)) {
+                    throw new ErrorDetectedException("Error Detected!\nLine [%s]", line);
+                }
+            }
+        }
+
+        return lineList;
     }
 }
