@@ -59,7 +59,7 @@ public class DefaultPublisher extends SubmissionPublisher<String> implements Pub
             throw new RuntimeException(e);
         }
 
-        publishMessage(LAST_MESSAGE, null);
+        publishMessage(LAST_MESSAGE, messageExclusionStrategy);
     }
 
     protected void stopPublishing() {
@@ -112,7 +112,7 @@ public class DefaultPublisher extends SubmissionPublisher<String> implements Pub
         }
     }
 
-    protected class LineReader {
+    protected static class LineReader {
         private BufferedReader stdInput;
 
         LineReader(InputStream inputStream) {
