@@ -12,7 +12,7 @@ public class DefaultErrorHandler implements ErrorHandler {
     }
 
     @Override
-    public boolean handle(ErrorDetectedException errorDetectionException) {
+    public void handle(ErrorDetectedException errorDetectionException) {
         throw new ShellTaskFailedException(shellTask, errorDetectionException);
     }
 }

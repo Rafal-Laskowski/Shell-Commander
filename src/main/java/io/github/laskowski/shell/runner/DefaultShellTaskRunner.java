@@ -32,7 +32,11 @@ public class DefaultShellTaskRunner implements ShellTaskRunner<Process> {
             Process process = shellTask.getProcess();
 
             publisher.registerSubscriber(subscriber);
-            publisher.startPublishing(process);
+            try {
+                publisher.startPublishing(process);
+            } catch (ErrorDetectedException e) {
+                shellTask.getErrorHandler().handle(e);
+            }
         });
 
         outputListenerThread.start();
@@ -43,13 +47,7 @@ public class DefaultShellTaskRunner implements ShellTaskRunner<Process> {
         new Wait()
                 .withTimeout(serviceReadyStrategy.getTimeout())
                 .withMessage(serviceReadyStrategy.getTimeoutMessage())
-                .until(() -> {
-                    try {
-                        return subscriber.getLines().stream().anyMatch(serviceReadyStrategy.getReadyPredicate());
-                    } catch (ErrorDetectedException e) {
-                        return shellTask.getErrorHandler().handle(e);
-                    }
-                });
+                .until(() -> subscriber.getLines().stream().anyMatch(serviceReadyStrategy.getReadyPredicate()));
 
         tasks.add(shellTask);
     }

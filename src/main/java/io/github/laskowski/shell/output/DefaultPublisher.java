@@ -1,5 +1,7 @@
 package io.github.laskowski.shell.output;
 
+import io.github.laskowski.shell.exceptions.ErrorDetectedException;
+import io.github.laskowski.shell.output.messages.ErrorDetectionStrategy;
 import io.github.laskowski.shell.output.messages.MessageExclusionStrategy;
 
 import javax.annotation.Nullable;
@@ -8,27 +10,26 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.Duration;
-import java.util.Optional;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 public class DefaultPublisher extends SubmissionPublisher<String> implements Publisher<Process> {
     public static final String LAST_MESSAGE = "PROCESS FINISHED";
     protected final MessageExclusionStrategy messageExclusionStrategy;
+    protected final ErrorDetectionStrategy errorDetectionStrategy;
     protected volatile boolean shouldPublish = true;
 
-    public DefaultPublisher(@Nullable MessageExclusionStrategy messageExclusionStrategy) {
+    public DefaultPublisher(@Nullable MessageExclusionStrategy messageExclusionStrategy, @Nullable ErrorDetectionStrategy errorDetectionStrategy) {
         this.messageExclusionStrategy = messageExclusionStrategy;
+        this.errorDetectionStrategy = errorDetectionStrategy;
     }
 
-    public void startPublishing(Process process) {
+    public void startPublishing(Process process) throws ErrorDetectedException {
         startPublishing(process, false);
     }
 
-    public void startPublishing(Process process, boolean includeErrorStream) {
-        Consumer<String> publishMessageIfPresent = line -> publishMessage(line, messageExclusionStrategy);
+    public void startPublishing(Process process, boolean includeErrorStream) throws ErrorDetectedException {
 
         Thread processDetectionThread = new Thread(new ProcessDetectionRunnable(process));
 
@@ -41,10 +42,10 @@ public class DefaultPublisher extends SubmissionPublisher<String> implements Pub
 
         while (shouldPublish) {
             try {
-                inputStreamLineReader.readLine().ifPresent(publishMessageIfPresent);
+                publish(inputStreamLineReader);
 
                 if (includeErrorStream) {
-                    errorStreamLineReader.readLine().ifPresent(publishMessageIfPresent);
+                    publish(errorStreamLineReader);
                 }
 
                 process.waitFor(1, TimeUnit.MILLISECONDS);
@@ -59,7 +60,7 @@ public class DefaultPublisher extends SubmissionPublisher<String> implements Pub
             throw new RuntimeException(e);
         }
 
-        publishMessage(LAST_MESSAGE, messageExclusionStrategy);
+        publishMessage(LAST_MESSAGE, messageExclusionStrategy, errorDetectionStrategy);
     }
 
     protected void stopPublishing() {
@@ -67,12 +68,20 @@ public class DefaultPublisher extends SubmissionPublisher<String> implements Pub
     }
 
     @Override
-    public void publishMessage(String message, @Nullable MessageExclusionStrategy messageExclusionStrategy) {
-        if (messageExclusionStrategy == null) {
-            submit(message);
-        } else {
-            if (!messageExclusionStrategy.test(message)) {
+    public void publishMessage(String message, @Nullable MessageExclusionStrategy messageExclusionStrategy, @Nullable ErrorDetectionStrategy errorDetectionStrategy) throws ErrorDetectedException {
+        if (message != null) {
+            if (errorDetectionStrategy != null) {
+                if (errorDetectionStrategy.test(message)) {
+                    throw new ErrorDetectedException("Error Detected!\nLine [%s]", message);
+                }
+            }
+
+            if (messageExclusionStrategy == null) {
                 submit(message);
+            } else {
+                if (!messageExclusionStrategy.test(message)) {
+                    submit(message);
+                }
             }
         }
     }
@@ -82,6 +91,10 @@ public class DefaultPublisher extends SubmissionPublisher<String> implements Pub
         if (subscriber != null) {
             this.subscribe(subscriber);
         } else throw new IllegalArgumentException("You need to provide subscriber to Publisher!");
+    }
+
+    private void publish(LineReader lineReader) throws IOException, ErrorDetectedException {
+        publishMessage(lineReader.readLine(), messageExclusionStrategy, errorDetectionStrategy);
     }
 
     protected static class Sleeper {
@@ -119,12 +132,12 @@ public class DefaultPublisher extends SubmissionPublisher<String> implements Pub
             stdInput = new BufferedReader(new InputStreamReader(inputStream));
         }
 
-        public Optional<String> readLine() throws IOException {
+        public String readLine() throws IOException {
             boolean isOutReady = stdInput.ready();
             if (isOutReady) {
-                return Optional.ofNullable(stdInput.readLine());
+                return stdInput.readLine();
             } else {
-                return Optional.empty();
+                return null;
             }
         }
     }
