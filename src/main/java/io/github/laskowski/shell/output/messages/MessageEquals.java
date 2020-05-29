@@ -1,16 +1,15 @@
 package io.github.laskowski.shell.output.messages;
 
-import io.github.laskowski.shell.output.service.ServiceReadyPredicate;
+import java.util.function.Predicate;
 
-public class MessageEquals implements ServiceErrorPredicate, ServiceReadyPredicate {
-    private final String expected;
+public class MessageEquals extends MessageAction {
 
     public MessageEquals(String expected) {
-        this.expected = expected;
+        super(expected);
     }
 
     @Override
-    public boolean test(String s) {
-        return s.equals(expected);
+    public Predicate<String> getPredicate() {
+        return message -> message.equals(expected);
     }
 }

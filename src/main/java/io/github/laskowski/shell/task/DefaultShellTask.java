@@ -1,8 +1,10 @@
 package io.github.laskowski.shell.task;
 
+import io.github.laskowski.shell.ShellArguments;
+import io.github.laskowski.shell.error.DefaultErrorHandler;
+import io.github.laskowski.shell.error.ErrorHandler;
 import io.github.laskowski.shell.script.DefaultScriptInfoProvider;
 import io.github.laskowski.shell.script.Script;
-import io.github.laskowski.shell.ShellArguments;
 import io.github.rafal.laskowski.wait.Wait;
 
 import java.io.IOException;
@@ -34,5 +36,10 @@ public abstract class DefaultShellTask implements ShellTask<Process> {
         new Wait().withMessage("Failed to wait until Process is not null").until(() -> process != null);
 
         return process;
+    }
+
+    @Override
+    public ErrorHandler getErrorHandler() {
+        return new DefaultErrorHandler(this);
     }
 }

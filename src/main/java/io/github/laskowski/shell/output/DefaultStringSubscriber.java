@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class DefaultStringSubscriber implements StringSubscriber {
     protected Flow.Subscription subscription;
     protected final List<String> lines = new ArrayList<>();
-    private final ErrorDetectionStrategy errorDetectionStrategy;
+    protected final ErrorDetectionStrategy errorDetectionStrategy;
 
     public DefaultStringSubscriber(@Nullable ErrorDetectionStrategy errorDetectionStrategy) {
         this.errorDetectionStrategy = errorDetectionStrategy;

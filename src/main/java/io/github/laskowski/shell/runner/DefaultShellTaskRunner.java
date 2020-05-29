@@ -1,7 +1,6 @@
 package io.github.laskowski.shell.runner;
 
 import io.github.laskowski.shell.exceptions.ErrorDetectedException;
-import io.github.laskowski.shell.exceptions.ShellTaskFailedException;
 import io.github.laskowski.shell.output.OutputListener;
 import io.github.laskowski.shell.output.Publisher;
 import io.github.laskowski.shell.output.StringSubscriber;
@@ -48,7 +47,7 @@ public class DefaultShellTaskRunner implements ShellTaskRunner<Process> {
                     try {
                         return subscriber.getLines().stream().anyMatch(serviceReadyStrategy.getReadyPredicate());
                     } catch (ErrorDetectedException e) {
-                        throw new ShellTaskFailedException(shellTask, e);
+                        return shellTask.getErrorHandler().handle(e);
                     }
                 });
 
