@@ -1,6 +1,8 @@
 package io.github.laskowski.shell.runner;
 
+import io.github.laskowski.shell.error.DefaultErrorHandler;
 import io.github.laskowski.shell.exceptions.ErrorDetectedException;
+import io.github.laskowski.shell.error.ErrorHandler;
 import io.github.laskowski.shell.exceptions.ShellTaskFailedException;
 import io.github.laskowski.shell.output.OutputListener;
 import io.github.laskowski.shell.output.Publisher;
@@ -15,6 +17,7 @@ import java.util.List;
 public class DefaultShellTaskRunner implements ShellTaskRunner<Process> {
     private static DefaultShellTaskRunner taskRunner;
     private final List<ShellTask<Process>> tasks = new ArrayList<>();
+    private ErrorHandler errorHandler = null;
 
     private DefaultShellTaskRunner() {}
 
@@ -23,6 +26,11 @@ public class DefaultShellTaskRunner implements ShellTaskRunner<Process> {
             taskRunner = new DefaultShellTaskRunner();
         }
         return taskRunner;
+    }
+
+    public DefaultShellTaskRunner setErrorHandler(ErrorHandler errorHandler) {
+        this.errorHandler = errorHandler;
+        return this;
     }
 
     @Override
@@ -48,7 +56,7 @@ public class DefaultShellTaskRunner implements ShellTaskRunner<Process> {
                     try {
                         return subscriber.getLines().stream().anyMatch(serviceReadyStrategy.getReadyPredicate());
                     } catch (ErrorDetectedException e) {
-                        throw new ShellTaskFailedException(shellTask, e);
+                        return handleError(shellTask, e);
                     }
                 });
 
@@ -64,5 +72,13 @@ public class DefaultShellTaskRunner implements ShellTaskRunner<Process> {
     @Override
     public void stopAll() {
         tasks.forEach(ShellTask::stop);
+    }
+
+    private boolean handleError(ShellTask<Process> shellTask, ErrorDetectedException e) {
+        if (errorHandler == null) {
+            errorHandler = new DefaultErrorHandler(shellTask);
+        }
+
+        return errorHandler.handle(e);
     }
 }
