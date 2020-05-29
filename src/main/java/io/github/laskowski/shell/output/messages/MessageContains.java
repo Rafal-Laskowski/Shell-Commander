@@ -1,16 +1,15 @@
 package io.github.laskowski.shell.output.messages;
 
-import io.github.laskowski.shell.output.service.ServiceReadyPredicate;
+import java.util.function.Predicate;
 
-public class MessageContains implements ServiceReadyPredicate, ServiceErrorPredicate {
-    private final String expected;
+public class MessageContains extends MessageAction {
 
     public MessageContains(String expected) {
-        this.expected = expected;
+        super(expected);
     }
 
     @Override
-    public boolean test(String s) {
-        return s.contains(expected);
+    public Predicate<String> getPredicate() {
+        return message -> message.contains(expected);
     }
 }
