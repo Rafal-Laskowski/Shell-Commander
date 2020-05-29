@@ -1,9 +1,8 @@
 package io.github.laskowski.shell.runner;
 
 import io.github.laskowski.shell.error.DefaultErrorHandler;
-import io.github.laskowski.shell.exceptions.ErrorDetectedException;
 import io.github.laskowski.shell.error.ErrorHandler;
-import io.github.laskowski.shell.exceptions.ShellTaskFailedException;
+import io.github.laskowski.shell.exceptions.ErrorDetectedException;
 import io.github.laskowski.shell.output.OutputListener;
 import io.github.laskowski.shell.output.Publisher;
 import io.github.laskowski.shell.output.StringSubscriber;
