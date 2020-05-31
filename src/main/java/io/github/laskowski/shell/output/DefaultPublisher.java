@@ -42,17 +42,21 @@ public class DefaultPublisher extends SubmissionPublisher<String> implements Pub
 
         while (shouldPublish) {
             try {
+                System.out.println("1");
                 publish(inputStreamLineReader);
 
                 if (includeErrorStream) {
+                    System.out.println("2");
                     publish(errorStreamLineReader);
                 }
 
+                System.out.println("3");
                 process.waitFor(1, TimeUnit.MILLISECONDS);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } catch (InterruptedException ignore) {}
         }
+        System.out.println("DEFAULT PUBLISHER STOPPED");
 
         try {
             stdInput.close();
@@ -63,7 +67,8 @@ public class DefaultPublisher extends SubmissionPublisher<String> implements Pub
         publishMessage(LAST_MESSAGE, messageExclusionStrategy, errorDetectionStrategy);
     }
 
-    protected void stopPublishing() {
+    @Override
+    public void stop() {
         shouldPublish = false;
     }
 
@@ -121,7 +126,7 @@ public class DefaultPublisher extends SubmissionPublisher<String> implements Pub
             }
 
             Sleeper.sleep(Duration.ofMillis(500));
-            stopPublishing();
+            stop();
         }
     }
 

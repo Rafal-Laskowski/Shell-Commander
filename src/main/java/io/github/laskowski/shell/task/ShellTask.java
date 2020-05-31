@@ -9,5 +9,5 @@ public interface ShellTask<T> extends Task {
 
     Script getScript();
 
-    ErrorHandler getErrorHandler();
+    ErrorHandler<T> getErrorHandler();
 }

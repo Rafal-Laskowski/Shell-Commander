@@ -18,11 +18,12 @@ public class DefaultStringSubscriber implements StringSubscriber {
 
     @Override
     public void onNext(String item) {
-        System.out.println(item);
+        throw new RuntimeException("test");
+//        System.out.println(item);
 
 
-        lines.add(item);
-        this.subscription.request(100);
+//        lines.add(item);
+//        this.subscription.request(100);
     }
 
     @Override

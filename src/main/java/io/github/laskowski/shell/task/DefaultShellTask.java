@@ -39,7 +39,7 @@ public abstract class DefaultShellTask implements ShellTask<Process> {
     }
 
     @Override
-    public ErrorHandler getErrorHandler() {
-        return new DefaultErrorHandler(this);
+    public ErrorHandler<Process> getErrorHandler() {
+        return new DefaultErrorHandler();
     }
 }

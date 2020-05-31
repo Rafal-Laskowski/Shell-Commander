@@ -13,4 +13,6 @@ public interface Publisher<T> {
     void publishMessage(String message, MessageExclusionStrategy messageExclusionStrategy, ErrorDetectionStrategy errorDetectionStrategy) throws ErrorDetectedException;
 
     void registerSubscriber(Flow.Subscriber<String> subscriber);
+
+    void stop();
 }

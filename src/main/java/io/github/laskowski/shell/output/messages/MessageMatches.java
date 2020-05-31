@@ -12,4 +12,9 @@ public class MessageMatches extends MessageAction {
     public Predicate<String> getPredicate() {
         return message -> message.matches(expected);
     }
+
+    @Override
+    public String toString() {
+        return String.format("Message matches: %s", expected);
+    }
 }
