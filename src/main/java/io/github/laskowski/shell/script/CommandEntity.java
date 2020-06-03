@@ -1,6 +1,6 @@
 package io.github.laskowski.shell.script;
 
-interface CommandEntity {
+public interface CommandEntity {
     CommandType getCommandType();
     String getAnnotationValue();
     String getVariableValue();
